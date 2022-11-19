@@ -30,13 +30,21 @@ public class Post extends javax.swing.JPanel {
 
     public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent, ImageIcon postImage) {
         initComponents();
+        
+        
         this.postDate = postDate;
         this.userThatPosted = userThatPosted;
         this.postContent = postContent;
         this.postImage = postImage;
         changeLabels(userThatPosted, postContent, processDate(postDate));
         ProfilePicture.setIcon(processImage(posterProfilePic, 60, 60));
-        PostImage.setIcon(processImage(postImage, 400, 400));
+        if(postImage==null){
+             this.PostImage.setSize(0, 0);
+             this.PostImage.setVisible(false);
+        }else{
+            PostImage.setIcon(processImage(postImage, 400, 400));
+        }
+        
     }
     
     public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent) {

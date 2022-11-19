@@ -7,6 +7,9 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,7 @@ public class BinaryDiary extends javax.swing.JFrame {
     static Neo4JConnect database;
     static String userEmail;
     static String name;
+    
     
     // RECUERDEN QUE SI OCUPAN ALGUN EMAIL U OTRA COSA
     // UTILIZEN METODOS ESTÁTICOS
@@ -327,37 +331,47 @@ public class BinaryDiary extends javax.swing.JFrame {
         ContentPanel.repaint();
     }
     
-    static void refreshPosts(){
+    static void refreshPosts() {
         // HAGAN SU CODIGO AQUI
-        Date date = null;
-        Date date2 = null;
+       
         
         //  COSAS DE PRUEBA
         //  IGNORAR
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+       
+       
         
-        try {
-            date = sdf.parse("20/04/2022");
-            date2 = sdf.parse("20/08/2022");
-        } catch (ParseException ex) {
-            Logger.getLogger(BinaryDiary.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
         
         PostsPanel post = new PostsPanel(BinaryDiary.name);
         
         /*
                 SE SUPONE QUE EN VEZ DE ESTE FOR-LOOP
+        
                 SE REALIZA EL QUERY, con un WHILE-LOOP
+                
         */
-        for (int i = 0; i < 10; i++) {
-            if(i % 2 == 0)
-                post.addPost(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), date, 
-                        "Pedro Mendoza", "HOLAAAA!!!! YO SOY PEDRO!!!!!!!!! numero: " + i);
-            else{
-                post.addPost(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), date2, "Pedro Mendoza", "HOLAAAA!!!! YO SOY PEDRO!!!!!!!!! numero: " + i, 
-                        new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"));
-            }
+        Result r1 = BinaryDiary.database.QueryExecutor
+        ("Match(u:usuario)-[:IS_FRIEND_OF]->(u2:usuario)-[m:MAKES_POST]->(p:publicacion)"+
+"  where u.Email='"+BinaryDiary.userEmail+"'  return distinct  p.Id_Publicacion as Id_Publicacion," +
+" p.Fecha as Fecha,p.Contenido as Contenido,p.Foto_Publicacion as Foto_Publicacion, u2.Foto_Perfil as Foto_Perfil , u2.Nombre as Nombre, u2.Apellido as Apellido" +
+"    union match(u)-[:MAKES_POST]->(p1:publicacion) return distinct p1.Id_Publicacion as Id_Publicacion, " +
+"p1.Fecha as Fecha, p1.Contenido as Contenido, p1.Foto_Publicacion as Foto_Publicacion ,u.Foto_Perfil as Foto_Perfil ,u.Nombre as Nombre, u.Apellido as Apellido order by Fecha desc");
+       
+        while(r1.hasNext()){
+            
+            org.neo4j.driver.Record r = r1.next();
+         //  Date d1 = sdformat.parse(r.next().get("Fecha").toString().replace("\"",""));
+       // Instant instant = r.get("Fecha").asZoneDateTime().toInstant(ZoneOffset.UTC);
+        long epochMilli = r.get("Fecha").asZonedDateTime().toInstant().toEpochMilli();
+        Date date = new Date(epochMilli);
+        String path=r.get("Foto_Publicacion").asString();
+        ImageIcon img = new ImageIcon(path);
+        if(path=="null"){
+            img =null;
         }
+          post.addPost(new ImageIcon(r.get("Foto_Perfil").asString()),date,r.get("Nombre").asString()+" "+r.get("Apellido").asString(),r.get("Contenido").asString(),img);
+        }
+       
         
         JScrollPane scrollPane = new JScrollPane(post, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setBackground(new Color(102, 102, 102));

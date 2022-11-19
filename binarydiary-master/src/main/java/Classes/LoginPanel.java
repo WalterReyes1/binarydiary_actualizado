@@ -282,13 +282,13 @@ public class LoginPanel extends javax.swing.JPanel {
             LOGIN TIENE QUE CAMBIAR Y ACTUALIZAR ACTIVE USER
         */
          try{
-         Result result = BinaryDiary.database.QueryExecutor("match(u:usuario) where (u.Email='"+EmailLogin.getText()+"') return u.Contraseña,u.Nombre,u.Foto_Perfil,u.Foto_Portada");
+         Result result = BinaryDiary.database.QueryExecutor("match(u:usuario) where (u.Email='"+EmailLogin.getText()+"') return u.Apellido,u.Contraseña,u.Nombre,u.Foto_Perfil,u.Foto_Portada");
          org.neo4j.driver.Record r = result.next();
          System.out.println(r);
          System.out.println(r.get("u.Contraseña"));
          String s = "\""+PasswordLogin.getText()+"\"";
          String f = r.get("u.Contraseña").toString();
-         String imagen_perfil= r.get("u.Nombre").toString().replace("\"","");
+         String imagen_perfil= r.get("u.Foto_Perfil").toString().replace("\"","");
          
         if(f.equals(s)){
              
@@ -351,8 +351,8 @@ public class LoginPanel extends javax.swing.JPanel {
          System.out.println("Antes del if de mylist");
         if(myList.isEmpty()){
            result=BinaryDiary.database.QueryExecutor("create (:usuario{Email:'"+email+"',Nombre:'"+nombre+"',Apellido:'"+apellido+"',Contraseña:'"
-                  +contraseña+"',Nacimiento: date('"+formatter.format(jCalendar1.getDate()).toString()+"'),Foto_Perfil:'./ASSETS/DEFAULT_PROFILE_PICTURE_SMALL',"
-                          + "Foto_Portada:'./ASSETS/DEFAULT_PROFILE_PICTURE_BIG',Datos_Personales:'Escriba algo aquí'})");
+                  +contraseña+"',Nacimiento: date('"+formatter.format(jCalendar1.getDate()).toString()+"'),Foto_Perfil:'./ASSETS/DEFAULT_PROFILE_PICTURE_SMALL.png',"
+                          + "Foto_Portada:'./ASSETS/DEFAULT_PROFILE_PICTURE_BIG.png',Datos_Personales:'Escriba algo aquí'})");
           myList.clear();
           
           JOptionPane.showMessageDialog(null,"Usuario Registrado Exitosamente");
