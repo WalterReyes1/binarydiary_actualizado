@@ -266,14 +266,31 @@ public class BinaryDiary extends javax.swing.JFrame {
                 SE SUPONE QUE EN VEZ DE ESTE FOR-LOOP
                 SE REALIZA EL QUERY, con un WHILE-LOOP
         */
-        for (int i = 0; i < 12; i++) {
+       Result r= BinaryDiary.database.QueryExecutor("match(u:usuario) where not u.Email='"+BinaryDiary.userEmail+"' and ((toLower(u.Nombre) contains toLower('"+SearchTextField.getText()+"')  or toLower(u.Apellido) contains toLower('"+SearchTextField.getText()+"')))  return u.Nombre, u.Apellido, u.Foto_Perfil,u.Email");
+        
+       while(r.hasNext()){
+           
+          org.neo4j.driver.Record r1=  r.next();
+          
+          Result AC = BinaryDiary.database.QueryExecutor("match (u2:usuario)-[:IS_FRIEND_OF]->(u:usuario)<-[:IS_FRIEND_OF]-(u3:usuario)" +
+            "where u3.Email = '"+BinaryDiary.userEmail+"' and u2.Email='"+r1.get("u.Email").asString().replace("\"","")+"'" +
+            "return count (u) as friends_in_common");
+          int fc=AC.single().get(0).asInt();
+          
+                    
+
+          searchPeople.addResult(new ImageIcon(r1.get("u.Foto_Perfil").toString().replace("\"","")),r1.get("u.Nombre").toString().replace("\"","")+" "+ r1.get("u.Apellido").toString().replace("\"",""),fc,false,r1.get("u.Email").toString().replace("\"",""));
+        
+       }
+       
+      /*  for (int i = 0; i < 12; i++) {
             if(i % 2 == 0)
                 searchPeople.addResult(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), "Pedro Mendoza", 69, true);
             else{
                 searchPeople.addResult(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), "Walter Reyes", 10, false);
             }
         }
-        
+        */
         JScrollPane scrollPane = new JScrollPane(searchPeople, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getHorizontalScrollBar().setBackground(new Color(102, 102, 102));
         scrollPane.getHorizontalScrollBar().setUI(new BasicScrollBarUI() {
@@ -302,13 +319,14 @@ public class BinaryDiary extends javax.swing.JFrame {
                 SE SUPONE QUE EN VEZ DE ESTE FOR-LOOP
                 SE REALIZA EL QUERY, con un WHILE-LOOP
         */
+        /*
         for (int i = 0; i < 12; i++) {
             if(i % 2 == 0)
                 searchPeople.addResult(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), "Pedro Mendoza", 69, true);
             else{
                 searchPeople.addResult(new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"), "Walter Reyes", 10, false);
             }
-        }
+        }*/
         
         JScrollPane scrollPane = new JScrollPane(searchPeople, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getHorizontalScrollBar().setBackground(new Color(102, 102, 102));
@@ -354,8 +372,8 @@ public class BinaryDiary extends javax.swing.JFrame {
         ("Match(u:usuario)-[:IS_FRIEND_OF]->(u2:usuario)-[m:MAKES_POST]->(p:publicacion)"+
 "  where u.Email='"+BinaryDiary.userEmail+"'  return distinct  p.Id_Publicacion as Id_Publicacion," +
 " p.Fecha as Fecha,p.Contenido as Contenido,p.Foto_Publicacion as Foto_Publicacion, u2.Foto_Perfil as Foto_Perfil , u2.Nombre as Nombre, u2.Apellido as Apellido" +
-"    union match(u)-[:MAKES_POST]->(p1:publicacion) return distinct p1.Id_Publicacion as Id_Publicacion, " +
-"p1.Fecha as Fecha, p1.Contenido as Contenido, p1.Foto_Publicacion as Foto_Publicacion ,u.Foto_Perfil as Foto_Perfil ,u.Nombre as Nombre, u.Apellido as Apellido order by Fecha desc");
+"    union match(u)-[:MAKES_POST]->(p1:publicacion) where u.Email ='"+BinaryDiary.userEmail+"'return distinct p1.Id_Publicacion as Id_Publicacion, " +
+"p1.Fecha as Fecha, p1.Contenido as Contenido, p1.Fotory_Publicacion as Foto_Publicacion ,u.Foto_Perfil as Foto_Perfil ,u.Nombre as Nombre, u.Apellido as Apellido order by Fecha desc");
        
         while(r1.hasNext()){
             
@@ -455,10 +473,25 @@ public class BinaryDiary extends javax.swing.JFrame {
         /*
             AQUI SE DEBE REALIZAR EL QUERY PARA PODER CREAR EL NUEVO PROFILE PANEL
         */
+        Result r = BinaryDiary.database.QueryExecutor("match(u:usuario) where u.Email='"+BinaryDiary.userEmail+"' return u.Nombre, u.Apellido,u.Datos_Personales,u.Foto_Portada,u.Foto_Perfil");
+       org.neo4j.driver.Record r1 =  r.next();
+       
+       Result amigos = BinaryDiary.database.QueryExecutor("match (u:usuario)-[:IS_FRIEND_OF]->(u2:usuario)\n" +
+        "where u.Email = '"+BinaryDiary.userEmail+"'" +
+        "return count (u2) as amigos");
+       
+       
+        org.neo4j.driver.Record rAmigos=amigos.next();
+        Result Publicaciones = BinaryDiary.database.QueryExecutor("match (u:usuario)-[:MAKES_POST]->(p:publicacion)" +
+"where u.Email = '"+BinaryDiary.userEmail+"'" +
+"return count (p) as publicaciones");
+        org.neo4j.driver.Record P_Publicaciones =  Publicaciones.next();
+       
         
-        ProfilePanel profile = new ProfilePanel("Pedro", "Mendoza", "COMO ME LELEEEE COMO ME LELE COMO ME MLELELELELELEL EL PILIN", 
-                new ImageIcon("C:\\Users\\Pedro\\Pictures\\Roblox\\RobloxScreenShot20220531_185705743.png"), new ImageIcon("C:\\Users\\Pedro\\Pictures\\luis.jpg"),
-                10, 20);
+        ProfilePanel profile = new ProfilePanel(r1.get("u.Nombre").toString().replace("\"", ""), r1.get("u.Apellido").toString().replace("\"",""),r1.get("u.Datos_Personales").toString().replace("\"",""), 
+           
+                new ImageIcon(r1.get("u.Foto_Portada").toString().replace("\"","")), new ImageIcon(r1.get("u.Foto_Perfil").toString().replace("\"","")),
+                rAmigos.get("amigos").asInt(), P_Publicaciones.get("publicaciones").asInt());
         profile.setSize(1142, 748);
         profile.setLocation(0, 0);
         
@@ -497,7 +530,9 @@ public class BinaryDiary extends javax.swing.JFrame {
         });
         
     }
-
+static void UpdatePicture(ImageIcon img){
+    ProfileButton.setIcon(processImage(img, 60, 60));
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private static javax.swing.JScrollPane ContentPanel;
     private static javax.swing.JButton FriendsButton;

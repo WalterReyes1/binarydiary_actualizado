@@ -22,9 +22,10 @@ public class PersonResult extends javax.swing.JPanel {
         initComponents();
     }
 
-    public PersonResult(ImageIcon senderProfilePic, String userThatSent, int friendsInCommon, boolean alreadySent) {
+    public PersonResult(ImageIcon senderProfilePic, String userThatSent, int friendsInCommon, boolean alreadySent,String UserThatSendEmail) {
         initComponents();
         this.userThatSent = userThatSent;
+        this.personID=UserThatSendEmail;
         changeLabels(userThatSent, friendsInCommon);
         ProfilePicture.setIcon(processImage(senderProfilePic, 206, 215));
         this.SendFriendRequest.setEnabled(!alreadySent);

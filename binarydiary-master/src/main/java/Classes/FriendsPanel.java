@@ -22,8 +22,8 @@ public class FriendsPanel extends javax.swing.JPanel {
         this.add(new FriendRequest(profilePicture, user, friendsInCommon));
     }
     
-    public void addResult(ImageIcon profilePicture, String user, int friendsInCommon, boolean alreadyFriends){
-        this.add(new PersonResult(profilePicture, user, friendsInCommon, alreadyFriends));
+    public void addResult(ImageIcon profilePicture, String user, int friendsInCommon, boolean alreadyFriends,String Email){
+        this.add(new PersonResult(profilePicture, user, friendsInCommon, alreadyFriends,Email));
     }
     
     /**

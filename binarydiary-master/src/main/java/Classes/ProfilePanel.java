@@ -1,7 +1,15 @@
 package Classes;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -14,7 +22,7 @@ public class ProfilePanel extends javax.swing.JPanel {
     private String fullName;
     private ImageIcon coverPhoto;
     private ImageIcon profilePicture;
-    
+    private String Rutaimagen="";
     private String accountEmail;
     private ImageIcon COVER_PHOTO_TO_SAVE;
     private ImageIcon PROFILE_PHOTO_TO_SAVE;
@@ -285,10 +293,18 @@ public class ProfilePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void EditProfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditProfileButtonActionPerformed
+       
+       
         this.EditProfile.pack();
+          ProfilePictureEdit.setIcon(processImage(profilePicture, ProfilePictureEdit.getWidth(),
+           ProfilePictureEdit.getHeight()));
+          ProfileBackgroundEdit.setIcon(processImage(coverPhoto,  ProfileBackgroundEdit.getWidth(),
+            ProfileBackgroundEdit.getHeight()));
         this.EditProfile.setAlwaysOnTop(true);
         this.EditProfile.setLocationRelativeTo(null);
         this.EditProfile.setVisible(true);
+        
+       
     }//GEN-LAST:event_EditProfileButtonActionPerformed
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
@@ -297,17 +313,95 @@ public class ProfilePanel extends javax.swing.JPanel {
 
     private void ConfirmChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConfirmChangesActionPerformed
         // REALIZAR CÓDIGO PARA ACTUALIZAR DB
+        BinaryDiary.database.QueryExecutor("match(u:usuario) where u.Email='"+BinaryDiary.userEmail+"' set u.Datos_Personales='"+AboutMeEdit.getText()+"'");
+        BinaryDiary.UpdatePicture(profilePicture);
         BinaryDiary.refreshProfile();
         this.EditProfile.dispose();
+        
     }//GEN-LAST:event_ConfirmChangesActionPerformed
 
     private void ProfilePictureEditMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ProfilePictureEditMouseClicked
         // REALIZAR CÓDIGO DE FILECHOOSER
+         // FILE CHOOSER
+         JFileChooser buscar = new JFileChooser("C:\\Users\\emman\\Downloads");
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("jpg", "png","jpeg");
+        buscar.setFileFilter(filtro);
+        ImageIcon imagen = new ImageIcon();
+        int a = buscar.showOpenDialog(this.ProfilePictureEdit);
+        if (a == JFileChooser.APPROVE_OPTION) {
+            File archivo = buscar.getSelectedFile();
+            String nombre = archivo.getName();
+            String ruta = archivo.getParent();
+             Rutaimagen = ruta + "\\" + nombre;
+             
+             System.out.println(Rutaimagen);
+      
+                // String Usuario="emmanuel.walter11@gmail.com";
+                 
+                  String s = ".//data//"+BinaryDiary.userEmail+"_Foto_Perfil.jpg";
+                  
+               BinaryDiary.database.QueryExecutor("match(u:usuario) where u.Email='"+BinaryDiary.userEmail+"' set u.Foto_Perfil='"+s+"'");
+                    
+                // imageURL = new URL("file:\\"+Rutaimagen);
+                 try {
+                  BufferedImage bi=ImageIO.read(new File(Rutaimagen));
+          
+               //  bi = ImageIO.read(new File(s));
+                  ImageIO.write(bi, "jpg", new File(s));
+                   imagen = new ImageIcon(s);
+                   Rutaimagen=s;
+                   profilePicture=imagen;
+             } catch (IOException ex) {
+                 Logger.getLogger(PostsPanel.class.getName()).log(Level.SEVERE, null, ex);
+             }
+                
+           ProfilePictureEdit.setIcon(processImage(profilePicture, 1160, 359));
+           
+        
+      
+        }
         // UTILIZAR ESTE METODO PARA RESIZE -> ProfilePictureEdit.setIcon(processImage(coverPhoto, 1160, 359));
     }//GEN-LAST:event_ProfilePictureEditMouseClicked
 
     private void ProfileBackgroundEditMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ProfileBackgroundEditMouseClicked
         // REALIZAR CÓDIGO DE FILECHOOSER
+         JFileChooser buscar = new JFileChooser("C:\\Users\\emman\\Downloads");
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("jpg", "png","jpeg");
+        buscar.setFileFilter(filtro);
+        ImageIcon imagen = new ImageIcon();
+        int a = buscar.showOpenDialog(this.ProfileBackgroundEdit);
+        if (a == JFileChooser.APPROVE_OPTION) {
+            File archivo = buscar.getSelectedFile();
+            String nombre = archivo.getName();
+            String ruta = archivo.getParent();
+             Rutaimagen = ruta + "\\" + nombre;
+             
+             System.out.println(Rutaimagen);
+      
+                // String Usuario="emmanuel.walter11@gmail.com";
+                 
+                  String s = ".//data//"+BinaryDiary.userEmail+"_Foto_Portada.jpg";
+                  
+               BinaryDiary.database.QueryExecutor("match(u:usuario) where u.Email='"+BinaryDiary.userEmail+"' set u.Foto_Portada='"+s+"'");
+                    
+                // imageURL = new URL("file:\\"+Rutaimagen);
+                 try {
+                  BufferedImage bi=ImageIO.read(new File(Rutaimagen));
+          
+               //  bi = ImageIO.read(new File(s));
+                  ImageIO.write(bi, "jpg", new File(s));
+                   imagen = new ImageIcon(s);
+                   coverPhoto=imagen;
+                   Rutaimagen=s;
+             } catch (IOException ex) {
+                 Logger.getLogger(PostsPanel.class.getName()).log(Level.SEVERE, null, ex);
+             }
+                
+           ProfileBackgroundEdit.setIcon(processImage(coverPhoto, 1160, 359));
+           
+        
+      
+        }
         // UTILIZAR ESTE METODO PARA RESIZE -> ProfilePictureEdit.setIcon(processImage(coverPhoto, 1160, 359));
     }//GEN-LAST:event_ProfileBackgroundEditMouseClicked
     
