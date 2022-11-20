@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 import javax.swing.ImageIcon;
 import javax.swing.JToolBar;
+import org.neo4j.driver.Result;
 import org.ocpsoft.prettytime.PrettyTime;
 
 /**
@@ -28,7 +29,7 @@ public class Post extends javax.swing.JPanel {
         initComponents();
     }
 
-    public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent, ImageIcon postImage) {
+    public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent, ImageIcon postImage,String ID) {
         initComponents();
         
         
@@ -36,6 +37,7 @@ public class Post extends javax.swing.JPanel {
         this.userThatPosted = userThatPosted;
         this.postContent = postContent;
         this.postImage = postImage;
+        this.postID=ID;
         changeLabels(userThatPosted, postContent, processDate(postDate));
         ProfilePicture.setIcon(processImage(posterProfilePic, 60, 60));
         if(postImage==null){
@@ -47,11 +49,12 @@ public class Post extends javax.swing.JPanel {
         
     }
     
-    public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent) {
+    public Post(ImageIcon posterProfilePic, Date postDate, String userThatPosted, String postContent, String ID) {
         initComponents();
         this.postDate = postDate;
         this.userThatPosted = userThatPosted;
         this.postContent = postContent;
+        this.postID=ID;
         changeLabels(userThatPosted, postContent, processDate(postDate));
         this.PostImage.setSize(0, 0);
         this.PostImage.setVisible(false);
@@ -126,8 +129,26 @@ public class Post extends javax.swing.JPanel {
     private void loadComments(){
         this.CommentsPanel.removeAll();
         // AQUÍ VAN A HACER EL QUERY Y LOS PROCESOS RESPECTIVOS PARA AGREGAR COMENTARIOS.
-        for (int i = 0; i < 10; i++) {
-            this.addComment();
+      Result r=  BinaryDiary.database.QueryExecutor("Match(p:publicacion)-[:HAS_COMMENT]->(C:Comentario) where p.Id_Publicacion='"+this.postID.replace("\"","")+"'  return C.Fecha,C.Usuario,C.Contenido order by C.Fecha desc ");
+        System.out.println("Este es el post id: "+postID);
+        
+       org.neo4j.driver.Record re1;
+       
+      while (r.hasNext()) {
+          org.neo4j.driver.Record r1= r.next();
+          Result re=BinaryDiary.database.QueryExecutor("Match(u:usuario)where u.Email='"+r1.get("C.Usuario").toString().replace("\"","")+"' return u.Foto_Perfil,u.Email");
+          String contenido=r1.get("C.Contenido").toString().replace("\"", "");
+         if(re.hasNext()){
+              long epochMilli = r1.get("C.Fecha").asZonedDateTime().toInstant().toEpochMilli();
+            Date date = new Date(epochMilli);
+          re1 = re.next();
+           addComment(new ImageIcon(re1.get("u.Foto_Perfil").toString().replace("\"","")),re1.get("u.Email").toString().replace("\"",""),date,contenido);
+             //System.out.println(""+ProfilePanel.profilePicture.toString()+" "+BinaryDiary.userEmail+" "+date.toString()+" "+PostReplyArea.getText());
+         }
+        
+            
+          
+        
         }
     }
     
@@ -298,6 +319,8 @@ public class Post extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SendReplyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendReplyButtonActionPerformed
+         Result r1= BinaryDiary.database.QueryExecutor("match(P:publicacion)where P.Id_Publicacion='"+this.postID.replace("\"","")+"' create(c:Comentario{Contenido:'"+PostReplyArea.getText()+"',Usuario:'"+BinaryDiary.userEmail+"',Fecha:datetime()}) create (P)-[:HAS_COMMENT]->(c) return c.Fecha,c.Usuario,c.Contenido ");
+      
         BinaryDiary.refreshPosts();
     }//GEN-LAST:event_SendReplyButtonActionPerformed
 

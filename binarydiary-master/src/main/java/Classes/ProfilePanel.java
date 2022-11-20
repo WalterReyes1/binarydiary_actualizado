@@ -21,7 +21,7 @@ public class ProfilePanel extends javax.swing.JPanel {
     private String aboutMe;
     private String fullName;
     private ImageIcon coverPhoto;
-    private ImageIcon profilePicture;
+    static ImageIcon profilePicture;
     private String Rutaimagen="";
     private String accountEmail;
     private ImageIcon COVER_PHOTO_TO_SAVE;

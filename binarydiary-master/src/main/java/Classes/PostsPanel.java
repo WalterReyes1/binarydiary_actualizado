@@ -41,13 +41,13 @@ public class PostsPanel extends javax.swing.JPanel {
         uuid=Create_uuid();
     }
     
-    public void addPost(ImageIcon profilePicture, Date date, String user, String postContent, ImageIcon image){
-        this.add(new Post(profilePicture, date, user, postContent, image));
+    public void addPost(ImageIcon profilePicture, Date date, String user, String postContent, ImageIcon image,String ID){
+        this.add(new Post(profilePicture, date, user, postContent, image,ID));
         this.add(new Separator(new Dimension(10, 10)));
     }
     
-    public void addPost(ImageIcon profilePicture, Date date, String user, String postContent){
-        this.add(new Post(profilePicture, date, user, postContent));
+    public void addPost(ImageIcon profilePicture, Date date, String user, String postContent,String ID){
+        this.add(new Post(profilePicture, date, user, postContent,ID));
         this.add(new Separator(new Dimension(10, 10)));
     }
     

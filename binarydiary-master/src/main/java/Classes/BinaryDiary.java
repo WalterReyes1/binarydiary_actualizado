@@ -275,17 +275,17 @@ public class BinaryDiary extends javax.swing.JFrame {
                     + "return count (u) as friends_in_common");
             int fc = AC.single().get(0).asInt();
 
-            Result validation = BinaryDiary.database.QueryExecutor("return exist (match (u:usuario)-[:WANTS_TO_FRIEND]->(u2:usuario)"
-            +"where u.Email = '" + BinaryDiary.userEmail + "'  and u2.Email='" + r1.get("u.Email").asString().replace("\"", "") + "')"
-            + "or exist (match (u2:usuario)-[:WANTS_TO_FRIEND]->(u:usuario)"
-            +"where u2.Email = '" + BinaryDiary.userEmail + "'  and u.Email='" + r1.get("u.Email").asString().replace("\"", "") + "'  )");
+            Result validation = BinaryDiary.database.QueryExecutor("match (u:usuario),(u2:usuario)" +
+"where u.Email = '"+BinaryDiary.userEmail+"' and u2.Email = '"+r1.get("u.Email").toString().replace("\"","")+
+"' return exists((u)-[:WANTS_TO_FRIEND]->(u2)) or exists((u2)-[:WANTS_TO_FRIEND]->(u))");
 
-            boolean flag1 = false;
+           /* boolean flag1 = false;
             while (validation.hasNext()) {
                 org.neo4j.driver.Record r2 = validation.next();
                 flag1 = r2.get(0).asBoolean();
-            }
-            searchPeople.addResult(new ImageIcon(r1.get("u.Foto_Perfil").toString().replace("\"", "")), r1.get("u.Nombre").toString().replace("\"", "") + " " + r1.get("u.Apellido").toString().replace("\"", ""), fc, flag1, r1.get("u.Email").toString().replace("\"", ""));
+            }*/
+           boolean check = validation.single().get(0).asBoolean();
+            searchPeople.addResult(new ImageIcon(r1.get("u.Foto_Perfil").toString().replace("\"", "")), r1.get("u.Nombre").toString().replace("\"", "") + " " + r1.get("u.Apellido").toString().replace("\"", ""), fc, check, r1.get("u.Email").toString().replace("\"", ""));
         }
 
         /*  for (int i = 0; i < 12; i++) {
@@ -371,7 +371,7 @@ public class BinaryDiary extends javax.swing.JFrame {
                 + "  where u.Email='" + BinaryDiary.userEmail + "'  return distinct  p.Id_Publicacion as Id_Publicacion,"
                 + " p.Fecha as Fecha,p.Contenido as Contenido,p.Foto_Publicacion as Foto_Publicacion, u2.Foto_Perfil as Foto_Perfil , u2.Nombre as Nombre, u2.Apellido as Apellido"
                 + "    union match(u)-[:MAKES_POST]->(p1:publicacion) where u.Email ='" + BinaryDiary.userEmail + "'return distinct p1.Id_Publicacion as Id_Publicacion, "
-                + "p1.Fecha as Fecha, p1.Contenido as Contenido, p1.Fotory_Publicacion as Foto_Publicacion ,u.Foto_Perfil as Foto_Perfil ,u.Nombre as Nombre, u.Apellido as Apellido order by Fecha desc");
+                + "p1.Fecha as Fecha, p1.Contenido as Contenido, p1.Foto_Publicacion as Foto_Publicacion ,u.Foto_Perfil as Foto_Perfil ,u.Nombre as Nombre, u.Apellido as Apellido order by Fecha desc");
 
         while (r1.hasNext()) {
 
@@ -385,7 +385,7 @@ public class BinaryDiary extends javax.swing.JFrame {
             if (path == "null") {
                 img = null;
             }
-            post.addPost(new ImageIcon(r.get("Foto_Perfil").asString()), date, r.get("Nombre").asString() + " " + r.get("Apellido").asString(), r.get("Contenido").asString(), img);
+            post.addPost(new ImageIcon(r.get("Foto_Perfil").asString()), date, r.get("Nombre").asString() + " " + r.get("Apellido").asString(), r.get("Contenido").asString(), img,r.get("Id_Publicacion").toString());
         }
 
         JScrollPane scrollPane = new JScrollPane(post, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
