@@ -2,6 +2,7 @@ package Classes;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
+import org.neo4j.driver.Result;
 
 /**
  *
@@ -177,6 +178,20 @@ public class FriendRequest extends javax.swing.JPanel {
         /*
             ELIMINAR RELACIÓN [:WANTS_TO_FRIEND] Y CREAR IS_FRIENDS
          */
+        Result r = BinaryDiary.database.QueryExecutor("match (u:usuario)-[wtf:WANTS_TO_FRIEND]->(u2:usuario)"
+                + "where u.Email = '" + this.personID + "' and u2.Email = '" + this.userThatSent + "'"
+                + "delete wtf");
+        Result r1 = BinaryDiary.database.QueryExecutor("match (u:usuario), (u2:usuario)"
+                + "where u.Email = '" + this.userThatSent + "' and u2.Email = '" + this.personID + "'"
+                + "create (u)-[:IS_FRIEND_OF]->(u2)"
+                + "return u.Email, u2.Email");
+        Result r2 = BinaryDiary.database.QueryExecutor("match (u:usuario), (u2:usuario)"
+                + "where u.Email = '" + this.userThatSent + "' and u2.Email = '" + this.personID + "'"
+                + "create (u2)-[:IS_FRIEND_OF]->(u)"
+                + "return u.Email, u2.Email");
+        if (r1.hasNext() && r2.hasNext()) {
+            System.out.println("solicitud aceptada");
+        }
         BinaryDiary.refreshFriendRequests();
     }//GEN-LAST:event_AcceptFriendRequestActionPerformed
 
@@ -184,6 +199,10 @@ public class FriendRequest extends javax.swing.JPanel {
         /*
             ELIMINAR RELACIÓN [:WANTS_TO_FRIEND] Y CREAR IS_FRIENDS
          */
+        Result r = BinaryDiary.database.QueryExecutor("match (u:usuario)-[wtf:WANTS_TO_FRIEND]->(u2:usuario)"
+                + "where u.Email = '" + this.personID + "' and u2.Email = '" + this.userThatSent + "'"
+                + "delete wtf");
+        BinaryDiary.refreshFriendRequests();
     }//GEN-LAST:event_RejectFriendRequestActionPerformed
 
 

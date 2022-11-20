@@ -12,9 +12,8 @@ public class PersonResult extends javax.swing.JPanel {
 
     private String userThatSent;
     private int friendsInCommon;
-    
     private String personID;
-    
+
     /**
      * Creates new form Post
      */
@@ -22,26 +21,26 @@ public class PersonResult extends javax.swing.JPanel {
         initComponents();
     }
 
-    public PersonResult(ImageIcon senderProfilePic, String userThatSent, int friendsInCommon, boolean alreadySent,String UserThatSendEmail) {
+    public PersonResult(ImageIcon senderProfilePic, String userThatSent, int friendsInCommon, boolean alreadySent, String UserThatSendEmail) {
         initComponents();
         this.userThatSent = userThatSent;
-        this.personID=UserThatSendEmail;
+        this.personID = UserThatSendEmail;
         changeLabels(userThatSent, friendsInCommon);
         ProfilePicture.setIcon(processImage(senderProfilePic, 206, 215));
         this.SendFriendRequest.setEnabled(!alreadySent);
-        if(alreadySent) {
+        if (alreadySent) {
             SendFriendRequest.setText("Enviado");
             SendFriendRequest.setForeground(Color.BLACK);
-            SendFriendRequest.setBackground(new Color(102,102,102));
+            SendFriendRequest.setBackground(new Color(102, 102, 102));
             SendFriendRequest.setBorder(null);
         }
     }
-    
-    private ImageIcon processImage(ImageIcon image, int width, int height){
+
+    private ImageIcon processImage(ImageIcon image, int width, int height) {
         return new ImageIcon(image.getImage().getScaledInstance(width, height, Image.SCALE_FAST));
     }
-    
-    private void changeLabels(String sender, int friendsInCommon){
+
+    private void changeLabels(String sender, int friendsInCommon) {
         Name.setText(sender);
         FriendsInCommon.setText("<html> " + friendsInCommon + " amigos en común </html>");
     }
@@ -61,7 +60,7 @@ public class PersonResult extends javax.swing.JPanel {
     public void setFriendsInCommon(int friendsInCommon) {
         this.friendsInCommon = friendsInCommon;
     }
-    
+
     public String getUserThatPosted() {
         return userThatSent;
     }
@@ -77,6 +76,7 @@ public class PersonResult extends javax.swing.JPanel {
     public void setPostID(String postID) {
         this.personID = postID;
     }
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -162,7 +162,13 @@ public class PersonResult extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SendFriendRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendFriendRequestActionPerformed
-        BinaryDiary.sendFriendRequest("EJEMPLO", "EJEMPLO");
+        if ("Solicitud enviada".equals(this.SendFriendRequest.getText())) {
+
+        } else {
+            BinaryDiary.sendFriendRequest(this.userThatSent, this.personID);
+            this.SendFriendRequest.setText("Solicitud enviada");
+            this.SendFriendRequest.setBackground(Color.darkGray);
+        }
     }//GEN-LAST:event_SendFriendRequestActionPerformed
 
 
